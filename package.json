@@ -1,0 +1,23 @@
+{
+  "name": "workspaceagent",
+  "version": "1.0.0",
+  "description": "workspace + AI聊天框的本地Agent",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alanlau2012/WorkspaceAgent.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alanlau2012/WorkspaceAgent/issues"
+  },
+  "homepage": "https://github.com/alanlau2012/WorkspaceAgent#readme",
+  "devDependencies": {
+    "electron": "^28.2.0"
+  }
+}
