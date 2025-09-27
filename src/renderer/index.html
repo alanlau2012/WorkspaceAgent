@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkspaceAgent</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div id="app">
+    <!-- 顶部工具栏 -->
+    <header class="toolbar">
+      <div class="toolbar-left">
+        <button id="open-workspace" class="btn btn-primary">
+          <span class="icon">📁</span>
+          打开工作空间
+        </button>
+        <button id="new-file" class="btn btn-secondary">
+          <span class="icon">📄</span>
+          新建文件
+        </button>
+      </div>
+      <div class="toolbar-center">
+        <span id="workspace-path" class="workspace-path">未选择工作空间</span>
+      </div>
+      <div class="toolbar-right">
+        <button id="toggle-ai" class="btn btn-ai">
+          <span class="icon">🤖</span>
+          AI 助手
+        </button>
+      </div>
+    </header>
+
+    <!-- 主内容区域 -->
+    <div class="main-content">
+      <!-- 左侧文件树 -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h3>工作空间</h3>
+          <button id="refresh-files" class="btn-icon" title="刷新">🔄</button>
+        </div>
+        <div class="file-tree" id="file-tree">
+          <div class="empty-state">
+            <p>请选择一个工作空间开始使用</p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 中央编辑区域 -->
+      <main class="editor-area">
+        <div class="tab-bar" id="tab-bar">
+          <!-- 标签页将动态生成 -->
+        </div>
+        <div class="editor-container" id="editor-container">
+          <div class="welcome-screen" id="welcome-screen">
+            <div class="welcome-content">
+              <h1>欢迎使用 WorkspaceAgent</h1>
+              <p>一个智能的工作空间管理工具</p>
+              <div class="features">
+                <div class="feature">
+                  <span class="icon">📁</span>
+                  <span>文件管理</span>
+                </div>
+                <div class="feature">
+                  <span class="icon">✏️</span>
+                  <span>代码编辑</span>
+                </div>
+                <div class="feature">
+                  <span class="icon">🤖</span>
+                  <span>AI 助手</span>
+                </div>
+              </div>
+              <button id="get-started" class="btn btn-primary btn-large">
+                开始使用
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- 右侧 AI 助手面板 -->
+      <aside class="ai-panel" id="ai-panel">
+        <div class="ai-panel-header">
+          <h3>AI 助手</h3>
+          <button id="close-ai" class="btn-icon" title="关闭">✕</button>
+        </div>
+        <div class="ai-chat" id="ai-chat">
+          <div class="chat-messages" id="chat-messages">
+            <div class="message ai-message">
+              <div class="message-content">
+                你好！我是你的 AI 助手，可以帮助你进行代码分析和建议。请选择工作空间开始使用。
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-container">
+            <textarea id="chat-input" placeholder="输入你的问题或请求..." rows="3"></textarea>
+            <button id="send-message" class="btn btn-primary">发送</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- 底部状态栏 -->
+    <footer class="status-bar">
+      <div class="status-left">
+        <span id="file-info">就绪</span>
+      </div>
+      <div class="status-right">
+        <span id="line-info">行: --, 列: --</span>
+        <span id="encoding">UTF-8</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 脚本文件 -->
+  <script src="scripts/app.js"></script>
+  <script src="scripts/fileManager.js"></script>
+  <script src="scripts/codeEditor.js"></script>
+  <script src="scripts/aiChat.js"></script>
+</body>
+</html>

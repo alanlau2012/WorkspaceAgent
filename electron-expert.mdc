@@ -1,0 +1,137 @@
+# Electron Expert MVP 开发模板
+
+## 项目结构
+
+```
+workspaceagent/
+├── src/
+│   ├── main.js              # 主进程
+│   ├── renderer/
+│   │   ├── index.html       # 主界面
+│   │   ├── styles/
+│   │   │   └── main.css     # 主样式
+│   │   ├── scripts/
+│   │   │   ├── app.js       # 渲染进程主逻辑
+│   │   │   ├── fileManager.js # 文件管理
+│   │   │   ├── codeEditor.js  # 代码编辑器
+│   │   │   └── aiChat.js    # AI 聊天
+│   │   └── components/
+│   │       ├── fileTree.js  # 文件树组件
+│   │       ├── editor.js    # 编辑器组件
+│   │       └── chat.js      # 聊天组件
+│   ├── preload/
+│   │   └── preload.js       # 预加载脚本
+│   └── utils/
+│       ├── fileUtils.js     # 文件工具
+│       └── aiUtils.js       # AI 工具
+├── docs/
+│   ├── PRD.md
+│   └── Roadmap.md
+├── package.json
+└── README.md
+```
+
+## MVP 核心功能实现
+
+### 1. 主进程 (main.js)
+- 窗口管理
+- 菜单栏
+- 文件系统访问
+- 安全配置
+
+### 2. 渲染进程
+- 工作空间文件树
+- 代码编辑器
+- AI 聊天界面
+- 状态管理
+
+### 3. 预加载脚本
+- 安全的 IPC 通信
+- 文件系统 API 暴露
+- 安全上下文隔离
+
+### 4. 核心组件
+- 文件管理器
+- 代码编辑器 (Monaco Editor)
+- AI 聊天界面
+- 状态栏
+
+## 技术实现要点
+
+### 安全配置
+```javascript
+webPreferences: {
+  contextIsolation: true,
+  nodeIntegration: false,
+  preload: path.join(__dirname, 'preload/preload.js')
+}
+```
+
+### IPC 通信
+- 文件操作
+- AI 请求
+- 状态同步
+- 错误处理
+
+### 文件管理
+- 递归文件读取
+- 文件类型检测
+- 权限检查
+- 错误处理
+
+### AI 集成
+- API 密钥管理
+- 请求限流
+- 错误重试
+- 响应缓存
+
+## 开发规范
+
+### 代码风格
+- ESLint 配置
+- Prettier 格式化
+- 注释规范
+- 命名约定
+
+### 错误处理
+- 全局错误捕获
+- 用户友好提示
+- 日志记录
+- 错误恢复
+
+### 性能优化
+- 懒加载
+- 虚拟滚动
+- 内存管理
+- 响应式设计
+
+## 测试策略
+
+### 单元测试
+- 工具函数测试
+- 组件测试
+- 业务逻辑测试
+
+### 集成测试
+- 文件操作测试
+- AI 集成测试
+- 用户交互测试
+
+### E2E 测试
+- 完整用户流程
+- 跨平台测试
+- 性能测试
+
+## 部署配置
+
+### 构建配置
+- Electron Builder
+- 多平台打包
+- 自动更新
+- 代码签名
+
+### 发布流程
+- 版本管理
+- 变更日志
+- 发布说明
+- 用户反馈
