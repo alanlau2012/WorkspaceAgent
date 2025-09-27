@@ -4,20 +4,53 @@
   "description": "workspace + AI聊天框的本地Agent",
   "main": "src/main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dev": "NODE_ENV=development electron .",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish=never",
+    "pack": "electron-builder --dir",
+    "postinstall": "electron-builder install-app-deps"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alanlau2012/WorkspaceAgent.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "electron",
+    "workspace",
+    "ai",
+    "code-editor",
+    "file-manager"
+  ],
+  "author": "WorkspaceAgent Team",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/alanlau2012/WorkspaceAgent/issues"
   },
   "homepage": "https://github.com/alanlau2012/WorkspaceAgent#readme",
   "devDependencies": {
-    "electron": "^28.2.0"
+    "electron": "^28.2.0",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.workspaceagent.app",
+    "productName": "WorkspaceAgent",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   }
 }
