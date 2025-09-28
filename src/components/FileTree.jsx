@@ -8,7 +8,8 @@ export const FileTree = ({ onFileSelect, showSearch = false }) => {
     isLoading,
     error,
     searchFiles,
-    searchResults
+    searchResults,
+    loadChildren
   } = useFileManager()
 
   const [searchQuery, setSearchQuery] = useState('')
@@ -22,19 +23,22 @@ export const FileTree = ({ onFileSelect, showSearch = false }) => {
     }
   }
 
-  const toggleFolder = (folderPath) => {
+  const toggleFolder = (folderPath, file) => {
     const newExpanded = new Set(expandedFolders)
     if (newExpanded.has(folderPath)) {
       newExpanded.delete(folderPath)
     } else {
       newExpanded.add(folderPath)
+      if (file && file.children && file.children.length === 0) {
+        loadChildren(folderPath)
+      }
     }
     setExpandedFolders(newExpanded)
   }
 
   const handleFileClick = (file) => {
     if (file.type === 'directory') {
-      toggleFolder(file.path)
+      toggleFolder(file.path, file)
     } else if (onFileSelect) {
       onFileSelect(file)
     }

@@ -90,8 +90,11 @@ export const useFileManager = () => {
 
   const deleteFile = useCallback(async (filePath) => {
     try {
-      // 在实际的Electron环境中，这里会调用删除文件的API
-      console.log('删除文件:', filePath)
+      if (window.electronAPI && window.electronAPI.deletePath) {
+        await window.electronAPI.deletePath(filePath)
+      } else {
+        console.log('删除文件:', filePath)
+      }
       // Refresh the current directory
       await loadDirectory(currentPath)
     } catch (err) {
@@ -101,8 +104,18 @@ export const useFileManager = () => {
 
   const renameFile = useCallback(async (oldPath, newName) => {
     try {
-      // 在实际的Electron环境中，这里会调用重命名文件的API
-      console.log('重命名文件:', oldPath, '->', newName)
+      // 输入校验：不得包含路径分隔符，且非空
+      if (/[\\/]/.test(newName)) {
+        throw new Error('名称不能包含路径分隔符 / 或 \\')
+      }
+      if (!newName || typeof newName !== 'string' || !newName.trim()) {
+        throw new Error('名称不能为空')
+      }
+      if (window.electronAPI && window.electronAPI.renamePath) {
+        await window.electronAPI.renamePath(oldPath, newName.trim())
+      } else {
+        console.log('重命名文件:', oldPath, '->', newName)
+      }
       // Refresh the current directory
       await loadDirectory(currentPath)
     } catch (err) {
@@ -139,6 +152,27 @@ export const useFileManager = () => {
     }
   }, [files])
 
+  const loadChildren = useCallback(async (dirPath) => {
+    try {
+      if (!(window.electronAPI && window.electronAPI.readChildren)) return
+      const children = await window.electronAPI.readChildren(dirPath)
+
+      const mergeChildren = (nodes) => nodes.map(n => {
+        if (n.type === 'directory' && n.path === dirPath) {
+          return { ...n, children }
+        }
+        if (n.children && n.children.length) {
+          return { ...n, children: mergeChildren(n.children) }
+        }
+        return n
+      })
+
+      setFiles(prev => mergeChildren(prev))
+    } catch (err) {
+      setError(err.message)
+    }
+  }, [])
+
   return {
     files,
     currentPath,
@@ -150,5 +184,6 @@ export const useFileManager = () => {
     deleteFile,
     renameFile,
     searchFiles
+    , loadChildren
   }
 }
