@@ -8,7 +8,9 @@ const mockElectronAPI = {
   writeFile: jest.fn(),
   watchDirectory: jest.fn(),
   stopWatching: jest.fn(),
-  searchFiles: jest.fn()
+  searchFiles: jest.fn(),
+  onFileChanged: jest.fn(),
+  removeFileChangedListener: jest.fn()
 }
 
 // Mock window.electronAPI
@@ -116,5 +118,25 @@ describe('useFileManager', () => {
     
     expect(result.current.error).toBe(errorMessage)
     expect(result.current.isLoading).toBe(false)
+  })
+
+  test('组件卸载时应停止 watch 并移除文件变更监听', async () => {
+    const mockFiles = []
+    mockElectronAPI.selectDirectory.mockResolvedValue(mockFiles)
+
+    const { result, unmount } = renderHook(() => useFileManager())
+
+    await act(async () => {
+      await result.current.loadDirectory('/test')
+    })
+
+    // 捕获注册的监听器回调
+    expect(mockElectronAPI.onFileChanged).toHaveBeenCalled()
+    const cb = mockElectronAPI.onFileChanged.mock.calls[0][0]
+
+    unmount()
+
+    expect(mockElectronAPI.stopWatching).toHaveBeenCalled()
+    expect(mockElectronAPI.removeFileChangedListener).toHaveBeenCalledWith(cb)
   })
 })

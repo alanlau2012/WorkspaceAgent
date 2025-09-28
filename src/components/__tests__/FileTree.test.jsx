@@ -108,4 +108,33 @@ describe('FileTree', () => {
       expect(mockUseFileManager.searchFiles).toHaveBeenCalledWith('test')
     })
   })
+
+  test('工具栏按钮应触发对应的 Hook 方法', () => {
+    render(<FileTree />)
+
+    // 刷新
+    fireEvent.click(screen.getByTestId('btn-refresh'))
+    expect(mockUseFileManager.loadDirectory).toHaveBeenCalledWith('/test')
+
+    // 选择根目录
+    fireEvent.click(screen.getByTestId('btn-select-root'))
+    expect(mockUseFileManager.loadDirectory).toHaveBeenCalledWith('')
+
+    // 新建
+    const promptSpy = jest.spyOn(window, 'prompt').mockReturnValue('/test/new.txt')
+    fireEvent.click(screen.getByTestId('btn-new-file'))
+    expect(mockUseFileManager.createFile).toHaveBeenCalledWith('/test/new.txt')
+
+    // 重命名
+    promptSpy.mockReturnValueOnce('/test/old.txt').mockReturnValueOnce('new.txt')
+    fireEvent.click(screen.getByTestId('btn-rename-file'))
+    expect(mockUseFileManager.renameFile).toHaveBeenCalledWith('/test/old.txt', 'new.txt')
+
+    // 删除
+    promptSpy.mockReturnValue('/test/del.txt')
+    fireEvent.click(screen.getByTestId('btn-delete-file'))
+    expect(mockUseFileManager.deleteFile).toHaveBeenCalledWith('/test/del.txt')
+
+    promptSpy.mockRestore()
+  })
 })

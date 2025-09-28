@@ -7,54 +7,7 @@ export const useFileManager = () => {
   const [error, setError] = useState(null)
   const [searchResults, setSearchResults] = useState([])
 
-  // 初始化时加载模拟数据
-  useEffect(() => {
-    const mockFiles = [
-      {
-        name: 'src',
-        type: 'directory',
-        path: '/src',
-        children: [
-          {
-            name: 'components',
-            type: 'directory',
-            path: '/src/components',
-            children: [
-              { name: 'FileTree.jsx', type: 'file', path: '/src/components/FileTree.jsx' },
-              { name: 'FilePreview.jsx', type: 'file', path: '/src/components/FilePreview.jsx' },
-              { name: 'FileTree.css', type: 'file', path: '/src/components/FileTree.css' },
-              { name: 'FilePreview.css', type: 'file', path: '/src/components/FilePreview.css' }
-            ]
-          },
-          {
-            name: 'hooks',
-            type: 'directory',
-            path: '/src/hooks',
-            children: [
-              { name: 'useFileManager.js', type: 'file', path: '/src/hooks/useFileManager.js' }
-            ]
-          },
-          { name: 'App.jsx', type: 'file', path: '/src/App.jsx' },
-          { name: 'App.css', type: 'file', path: '/src/App.css' },
-          { name: 'index.js', type: 'file', path: '/src/index.js' },
-          { name: 'main.js', type: 'file', path: '/src/main.js' }
-        ]
-      },
-      {
-        name: 'docs',
-        type: 'directory',
-        path: '/docs',
-        children: [
-          { name: 'README.md', type: 'file', path: '/docs/README.md' },
-          { name: 'Roadmap.md', type: 'file', path: '/docs/Roadmap.md' }
-        ]
-      },
-      { name: 'package.json', type: 'file', path: '/package.json' },
-      { name: 'vite.config.js', type: 'file', path: '/vite.config.js' },
-      { name: 'README.md', type: 'file', path: '/README.md' }
-    ]
-    setFiles(mockFiles)
-  }, [])
+  // 移除初始化 mock，改为按需加载
 
   const loadDirectory = useCallback(async (path) => {
     setIsLoading(true)
@@ -63,7 +16,8 @@ export const useFileManager = () => {
     try {
       if (window.electronAPI && window.electronAPI.selectDirectory) {
         const result = await window.electronAPI.selectDirectory()
-        setFiles(result)
+        const tree = Array.isArray(result) ? result : (result && result.tree) || []
+        setFiles(tree)
         setCurrentPath(path)
       } else {
         // Mock data for testing - 使用现有的模拟数据
@@ -138,6 +92,28 @@ export const useFileManager = () => {
       setError(err.message)
     }
   }, [files])
+
+  // 监听文件变化并在卸载时清理
+  useEffect(() => {
+    if (!window.electronAPI || !window.electronAPI.onFileChanged) return
+
+    const handleChange = () => {
+      // 变更后刷新当前目录
+      if (currentPath) {
+        loadDirectory(currentPath)
+      }
+    }
+
+    window.electronAPI.onFileChanged(handleChange)
+    return () => {
+      if (window.electronAPI.stopWatching) {
+        window.electronAPI.stopWatching()
+      }
+      if (window.electronAPI.removeFileChangedListener) {
+        window.electronAPI.removeFileChangedListener(handleChange)
+      }
+    }
+  }, [currentPath, loadDirectory])
 
   return {
     files,
