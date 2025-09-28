@@ -7,64 +7,89 @@ export const useFileManager = () => {
   const [error, setError] = useState(null)
   const [searchResults, setSearchResults] = useState([])
 
-  // 初始化时加载模拟数据
+  // 只有在没有 electronAPI 时才初始化模拟数据（用于测试环境）
   useEffect(() => {
-    const mockFiles = [
-      {
-        name: 'src',
-        type: 'directory',
-        path: '/src',
-        children: [
-          {
-            name: 'components',
-            type: 'directory',
-            path: '/src/components',
-            children: [
-              { name: 'FileTree.jsx', type: 'file', path: '/src/components/FileTree.jsx' },
-              { name: 'FilePreview.jsx', type: 'file', path: '/src/components/FilePreview.jsx' },
-              { name: 'FileTree.css', type: 'file', path: '/src/components/FileTree.css' },
-              { name: 'FilePreview.css', type: 'file', path: '/src/components/FilePreview.css' }
-            ]
-          },
-          {
-            name: 'hooks',
-            type: 'directory',
-            path: '/src/hooks',
-            children: [
-              { name: 'useFileManager.js', type: 'file', path: '/src/hooks/useFileManager.js' }
-            ]
-          },
-          { name: 'App.jsx', type: 'file', path: '/src/App.jsx' },
-          { name: 'App.css', type: 'file', path: '/src/App.css' },
-          { name: 'index.js', type: 'file', path: '/src/index.js' },
-          { name: 'main.js', type: 'file', path: '/src/main.js' }
-        ]
-      },
-      {
-        name: 'docs',
-        type: 'directory',
-        path: '/docs',
-        children: [
-          { name: 'README.md', type: 'file', path: '/docs/README.md' },
-          { name: 'Roadmap.md', type: 'file', path: '/docs/Roadmap.md' }
-        ]
-      },
-      { name: 'package.json', type: 'file', path: '/package.json' },
-      { name: 'vite.config.js', type: 'file', path: '/vite.config.js' },
-      { name: 'README.md', type: 'file', path: '/README.md' }
-    ]
-    setFiles(mockFiles)
+    if (!window.electronAPI) {
+      const mockFiles = [
+        {
+          name: 'src',
+          type: 'directory',
+          path: '/src',
+          children: [
+            {
+              name: 'components',
+              type: 'directory',
+              path: '/src/components',
+              children: [
+                { name: 'FileTree.jsx', type: 'file', path: '/src/components/FileTree.jsx' },
+                { name: 'FilePreview.jsx', type: 'file', path: '/src/components/FilePreview.jsx' },
+                { name: 'FileTree.css', type: 'file', path: '/src/components/FileTree.css' },
+                { name: 'FilePreview.css', type: 'file', path: '/src/components/FilePreview.css' }
+              ]
+            },
+            {
+              name: 'hooks',
+              type: 'directory',
+              path: '/src/hooks',
+              children: [
+                { name: 'useFileManager.js', type: 'file', path: '/src/hooks/useFileManager.js' }
+              ]
+            },
+            { name: 'App.jsx', type: 'file', path: '/src/App.jsx' },
+            { name: 'App.css', type: 'file', path: '/src/App.css' },
+            { name: 'index.js', type: 'file', path: '/src/index.js' },
+            { name: 'main.js', type: 'file', path: '/src/main.js' }
+          ]
+        },
+        {
+          name: 'docs',
+          type: 'directory',
+          path: '/docs',
+          children: [
+            { name: 'README.md', type: 'file', path: '/docs/README.md' },
+            { name: 'Roadmap.md', type: 'file', path: '/docs/Roadmap.md' }
+          ]
+        },
+        { name: 'package.json', type: 'file', path: '/package.json' },
+        { name: 'vite.config.js', type: 'file', path: '/vite.config.js' },
+        { name: 'README.md', type: 'file', path: '/README.md' }
+      ]
+      setFiles(mockFiles)
+    }
   }, [])
+
+  const refresh = useCallback(async () => {
+    if (!currentPath) return
+    if (window.electronAPI?.readDirectory) {
+      const list = await window.electronAPI.readDirectory(currentPath)
+      setFiles(list)
+    }
+  }, [currentPath])
 
   const loadDirectory = useCallback(async (path) => {
     setIsLoading(true)
     setError(null)
     
     try {
-      if (window.electronAPI && window.electronAPI.selectDirectory) {
-        const result = await window.electronAPI.selectDirectory()
-        setFiles(result)
-        setCurrentPath(path)
+      if (window.electronAPI) {
+        if (!path) {
+          // 无路径模式：使用对话框选择目录
+          const result = await window.electronAPI.selectDirectory()
+          if (result && result.rootPath) {
+            // 新格式: { rootPath, entries }
+            setFiles(result.entries)
+            setCurrentPath(result.rootPath)
+          } else if (Array.isArray(result) && result.length > 0) {
+            // 兼容旧格式: entries[]
+            setFiles(result)
+            setCurrentPath(path)
+          }
+        } else {
+          // 指定路径模式：直接读取目录
+          const files = await window.electronAPI.readDirectory(path)
+          setFiles(files)
+          setCurrentPath(path)
+        }
       } else {
         // Mock data for testing - 使用现有的模拟数据
         setCurrentPath(path)
@@ -87,6 +112,33 @@ export const useFileManager = () => {
       setError(err.message)
     }
   }, [currentPath, loadDirectory])
+
+  const createFolder = useCallback(async (dirPath) => {
+    try {
+      await window.electronAPI?.createFolder?.(dirPath)
+      await refresh()
+    } catch (err) {
+      setError(err.message)
+    }
+  }, [refresh])
+
+  const deletePath = useCallback(async (p) => {
+    try {
+      await window.electronAPI?.deletePath?.(p)
+      await refresh()
+    } catch (err) {
+      setError(err.message)
+    }
+  }, [refresh])
+
+  const renamePath = useCallback(async (oldPath, newName) => {
+    try {
+      await window.electronAPI?.renamePath?.(oldPath, newName)
+      await refresh()
+    } catch (err) {
+      setError(err.message)
+    }
+  }, [refresh])
 
   const deleteFile = useCallback(async (filePath) => {
     try {
@@ -139,16 +191,39 @@ export const useFileManager = () => {
     }
   }, [files])
 
+  // 文件变化监听
+  useEffect(() => {
+    if (!currentPath || !window.electronAPI?.watchDirectory) return
+    
+    const throttledRefresh = () => {
+      // 简单的节流实现
+      setTimeout(refresh, 300)
+    }
+
+    window.electronAPI.watchDirectory(currentPath)
+    window.electronAPI.onFileChanged(throttledRefresh)
+    
+    return () => {
+      window.electronAPI.removeFileChangedListener(throttledRefresh)
+      window.electronAPI.stopWatching?.()
+    }
+  }, [currentPath, refresh])
+
   return {
     files,
     currentPath,
+    setCurrentPath, // 添加setCurrentPath供外部使用
     isLoading,
     error,
     searchResults,
     loadDirectory,
+    refresh, // 添加refresh方法
     createFile,
+    createFolder, // 新增
     deleteFile,
+    deletePath, // 新增
     renameFile,
+    renamePath, // 新增
     searchFiles
   }
 }

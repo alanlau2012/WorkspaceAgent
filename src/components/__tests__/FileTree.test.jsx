@@ -2,8 +2,8 @@ import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { FileTree } from '../FileTree'
 
-// Mock useFileManager hook
-let mockUseFileManager = {
+// Mock FileManagerContext
+let mockFileManagerContext = {
   files: [
     { name: 'file1.txt', type: 'file', path: '/test/file1.txt' },
     { name: 'folder1', type: 'directory', path: '/test/folder1', children: [
@@ -18,11 +18,13 @@ let mockUseFileManager = {
   deleteFile: jest.fn(),
   renameFile: jest.fn(),
   searchFiles: jest.fn(),
-  searchResults: []
+  searchResults: [],
+  renamePath: jest.fn(),
+  deletePath: jest.fn()
 }
 
-jest.mock('../../hooks/useFileManager', () => ({
-  useFileManager: () => mockUseFileManager
+jest.mock('../../contexts/FileManagerContext', () => ({
+  useFileManagerCtx: () => mockFileManagerContext
 }))
 
 describe('FileTree', () => {
@@ -64,8 +66,8 @@ describe('FileTree', () => {
 
   test('应该显示加载状态', () => {
     // Temporarily change the mock
-    const originalMock = mockUseFileManager
-    mockUseFileManager = {
+    const originalMock = mockFileManagerContext
+    mockFileManagerContext = {
       ...originalMock,
       isLoading: true
     }
@@ -74,13 +76,13 @@ describe('FileTree', () => {
     expect(screen.getByText('加载中...')).toBeInTheDocument()
     
     // Restore original mock
-    mockUseFileManager = originalMock
+    mockFileManagerContext = originalMock
   })
 
   test('应该显示错误信息', () => {
     // Temporarily change the mock
-    const originalMock = mockUseFileManager
-    mockUseFileManager = {
+    const originalMock = mockFileManagerContext
+    mockFileManagerContext = {
       ...originalMock,
       error: 'Permission denied'
     }
@@ -89,7 +91,7 @@ describe('FileTree', () => {
     expect(screen.getByText('Permission denied')).toBeInTheDocument()
     
     // Restore original mock
-    mockUseFileManager = originalMock
+    mockFileManagerContext = originalMock
   })
 
   test('应该能够显示搜索框', () => {
@@ -105,7 +107,7 @@ describe('FileTree', () => {
     fireEvent.change(searchInput, { target: { value: 'test' } })
     
     await waitFor(() => {
-      expect(mockUseFileManager.searchFiles).toHaveBeenCalledWith('test')
+      expect(mockFileManagerContext.searchFiles).toHaveBeenCalledWith('test')
     })
   })
 })
