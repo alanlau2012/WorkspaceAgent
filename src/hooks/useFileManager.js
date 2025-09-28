@@ -6,6 +6,7 @@ export const useFileManager = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [searchResults, setSearchResults] = useState([])
+  const [loadedPaths, setLoadedPaths] = useState(new Set())
 
   // 初始化时加载模拟数据
   useEffect(() => {
@@ -90,8 +91,14 @@ export const useFileManager = () => {
 
   const deleteFile = useCallback(async (filePath) => {
     try {
-      // 在实际的Electron环境中，这里会调用删除文件的API
-      console.log('删除文件:', filePath)
+      if (window.electronAPI && window.electronAPI.deletePath) {
+        const result = await window.electronAPI.deletePath(filePath)
+        if (result.warning) {
+          console.warn(result.warning)
+        }
+      } else {
+        console.log('删除文件:', filePath)
+      }
       // Refresh the current directory
       await loadDirectory(currentPath)
     } catch (err) {
@@ -101,14 +108,54 @@ export const useFileManager = () => {
 
   const renameFile = useCallback(async (oldPath, newName) => {
     try {
-      // 在实际的Electron环境中，这里会调用重命名文件的API
-      console.log('重命名文件:', oldPath, '->', newName)
+      // 验证新名称
+      if (!newName || newName.trim() === '') {
+        throw new Error('文件名不能为空')
+      }
+      
+      if (newName.includes('/') || newName.includes('\\') || newName.includes(':')) {
+        throw new Error('文件名不能包含路径分隔符')
+      }
+      
+      if (window.electronAPI && window.electronAPI.renamePath) {
+        await window.electronAPI.renamePath(oldPath, newName)
+      } else {
+        console.log('重命名文件:', oldPath, '->', newName)
+      }
       // Refresh the current directory
       await loadDirectory(currentPath)
     } catch (err) {
       setError(err.message)
     }
   }, [currentPath, loadDirectory])
+
+  const loadChildren = useCallback(async (dirPath) => {
+    try {
+      if (window.electronAPI && window.electronAPI.readChildren) {
+        const children = await window.electronAPI.readChildren(dirPath)
+        
+        // 更新files树中对应目录的children
+        const updateFiles = (fileList) => {
+          return fileList.map(file => {
+            if (file.path === dirPath && file.type === 'directory') {
+              return { ...file, children }
+            }
+            if (file.children) {
+              return { ...file, children: updateFiles(file.children) }
+            }
+            return file
+          })
+        }
+        
+        setFiles(prevFiles => updateFiles(prevFiles))
+        setLoadedPaths(prev => new Set([...prev, dirPath]))
+      } else {
+        console.log('懒加载目录:', dirPath)
+      }
+    } catch (err) {
+      setError(err.message)
+    }
+  }, [])
 
   const searchFiles = useCallback(async (query) => {
     try {
@@ -145,7 +192,9 @@ export const useFileManager = () => {
     isLoading,
     error,
     searchResults,
+    loadedPaths,
     loadDirectory,
+    loadChildren,
     createFile,
     deleteFile,
     renameFile,
