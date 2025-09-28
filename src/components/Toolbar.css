@@ -1,0 +1,60 @@
+.file-tree-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2, 8px);
+  padding: var(--spacing-2, 8px);
+  border-bottom: 1px solid var(--border-secondary, #e8e8e8);
+  background: var(--background-primary, #fff);
+  flex-wrap: nowrap;
+}
+
+.toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--text-secondary, #666);
+  border: 1px solid var(--border-secondary, #d9d9d9);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  white-space: nowrap;
+  line-height: 1;
+  font-size: 14px;
+}
+
+.toolbar-btn:hover {
+  background: var(--background-hover, #f5f5f5);
+  color: var(--text-primary, #333);
+}
+
+.toolbar-btn:active {
+  background: var(--background-active, #e6f7ff);
+  border-color: var(--border-primary, #1890ff);
+}
+
+.toolbar-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.toolbar-label {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.current-path {
+  flex: 1;
+  margin-left: var(--spacing-2, 8px);
+  padding: 4px 8px;
+  background: var(--background-secondary, #f5f5f5);
+  border: 1px solid var(--border-secondary, #e8e8e8);
+  border-radius: var(--radius-sm, 4px);
+  font-size: 12px;
+  color: var(--text-secondary, #666);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
