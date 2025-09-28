@@ -1,3 +1,5 @@
+const path = require('path');
+
 function getWindowOptions() {
   return {
     width: 800,
@@ -6,6 +8,7 @@ function getWindowOptions() {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
+      preload: path.join(__dirname, '..', 'preload.js'),
     },
   };
 }
