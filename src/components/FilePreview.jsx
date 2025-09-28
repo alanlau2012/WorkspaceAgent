@@ -56,7 +56,11 @@ export const FilePreview = ({ file }) => {
           setContent(mockContent)
         }
       } catch (err) {
-        setError(`文件读取失败: ${err.message}`)
+        if (String(err.message).includes('FILE_TOO_LARGE')) {
+          setError('文件过大，无法预览 (>1MB)')
+        } else {
+          setError(`文件读取失败: ${err.message}`)
+        }
       } finally {
         setIsLoading(false)
       }

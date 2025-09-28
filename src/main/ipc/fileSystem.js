@@ -25,6 +25,18 @@ function registerFileSystemIpc(deps) {
   })
 
   ipcMain.handle('read-file', async (_event, filePath) => {
+    const ext = (filePath.split('.').pop() || '').toLowerCase()
+    const stat = await (injectedFs && injectedFs.stat ? injectedFs.stat(filePath) : require('fs').promises.stat(filePath))
+    const max = 1024 * 1024
+    if (stat.size > max) {
+      throw new Error('FILE_TOO_LARGE')
+    }
+    if (['png','jpg','jpeg','gif','bmp','webp','svg'].includes(ext)) {
+      const data = await fs.readFile(filePath)
+      const base64 = Buffer.from(data).toString('base64')
+      const mime = ext === 'svg' ? 'image/svg+xml' : `image/${ext === 'jpg' ? 'jpeg' : ext}`
+      return `data:${mime};base64,${base64}`
+    }
     return fs.readFile(filePath, 'utf-8')
   })
 
