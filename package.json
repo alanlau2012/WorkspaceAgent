@@ -8,9 +8,10 @@
     "dev": "cross-env NODE_ENV=development concurrently \"npm run dev:renderer\" \"wait-on http://localhost:3001 && electron .\"",
     "dev:renderer": "vite",
     "build": "vite build",
-    "test": "jest",
+    "test": "jest --runInBand",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test",
     "lint": "eslint src --ext .js,.jsx",
     "lint:fix": "eslint src --ext .js,.jsx --fix"
   },
@@ -26,8 +27,9 @@
   },
   "homepage": "https://github.com/alanlau2012/WorkspaceAgent#readme",
   "dependencies": {
+    "@playwright/test": "^1.55.1",
     "antd": "^5.12.8",
-    "chokidar": "^3.5.3",
+    "chokidar": "^3.6.0",
     "mermaid": "^10.6.1",
     "react": "^18.2.0",
     "react-arborist": "^3.0.0",

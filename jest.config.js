@@ -15,5 +15,6 @@ module.exports = {
     'src/**/*.(js|jsx)',
     '!src/**/*.test.(js|jsx)',
     '!src/setupTests.js'
-  ]
-}
+  ],
+  clearMocks: true,
+};
