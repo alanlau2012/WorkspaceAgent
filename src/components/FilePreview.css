@@ -2,32 +2,33 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--bg-secondary);
 }
 
 .file-preview-header {
-  padding: 16px;
-  border-bottom: 1px solid #e8e8e8;
-  background: #fafafa;
+  padding: var(--spacing-4);
+  border-bottom: 1px solid var(--border-primary);
+  background: var(--bg-tertiary);
 }
 
 .file-preview-header h3 {
   margin: 0 0 4px 0;
-  font-size: 16px;
+  font-size: var(--text-md);
   font-weight: 600;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .file-path {
-  font-size: 12px;
-  color: #666;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 }
 
 .file-preview-content {
   flex: 1;
   overflow: auto;
-  padding: 16px;
+  padding: var(--spacing-4);
+  color: var(--text-primary);
 }
 
 .file-preview-empty,
@@ -38,8 +39,8 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #666;
-  font-size: 14px;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
 }
 
 .file-preview-error {
@@ -57,8 +58,8 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .file-preview-code {
@@ -70,45 +71,18 @@
   padding: 0;
   height: 100%;
   overflow: auto;
-  background: #f8f8f8;
-  border-radius: 4px;
-  border: 1px solid #e8e8e8;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-primary);
 }
 
 .file-preview-code code {
   display: block;
-  padding: 16px;
+  padding: var(--spacing-4);
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 13px;
   line-height: 1.5;
-  color: #333;
+  color: var(--text-primary);
   white-space: pre-wrap;
   word-wrap: break-word;
-}
-
-/* Dark theme support */
-.file-preview.dark {
-  background: #1f1f1f;
-}
-
-.file-preview.dark .file-preview-header {
-  background: #2a2a2a;
-  border-bottom-color: #404040;
-}
-
-.file-preview.dark .file-preview-header h3 {
-  color: #fff;
-}
-
-.file-preview.dark .file-path {
-  color: #999;
-}
-
-.file-preview.dark .file-preview-code pre {
-  background: #2a2a2a;
-  border-color: #404040;
-}
-
-.file-preview.dark .file-preview-code code {
-  color: #fff;
 }

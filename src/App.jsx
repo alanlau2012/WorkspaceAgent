@@ -1,11 +1,8 @@
 import React, { useState } from 'react'
-import { Layout } from 'antd'
 import { FileTree } from './components/FileTree'
 import { FilePreview } from './components/FilePreview'
 import { ChatPanel } from './components/Chat/ChatPanel'
 import './App.css'
-
-const { Sider, Content } = Layout
 
 function App() {
   const [selectedFile, setSelectedFile] = useState(null)
@@ -15,26 +12,41 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <Layout style={{ height: '100vh' }}>
-        <Sider width={300} style={{ background: '#fff' }}>
-          <FileTree
-            onFileSelect={handleFileSelect}
-            showSearch={true}
-          />
-        </Sider>
-        <Content style={{ padding: '16px' }}>
-          <FilePreview file={selectedFile} />
-        </Content>
-        <Sider width={360} style={{ background: '#fff', borderLeft: '1px solid #e8e8e8' }}>
+    <div className="app-container">
+      <div className="titlebar">
+        <div className="titlebar-title">WorkspaceAgent - AI 文件管理助手</div>
+      </div>
+
+      <div className="main-content">
+        <aside className="file-tree-panel">
+          <div className="file-tree-header">
+            <div className="file-tree-title">工作区文件</div>
+            <div className="file-tree-toolbar">
+              <button className="toolbar-btn">📁 打开</button>
+              <button className="toolbar-btn">🔄 刷新</button>
+              <button className="toolbar-btn">➕ 新建</button>
+            </div>
+          </div>
+
+          <FileTree onFileSelect={handleFileSelect} showSearch={true} />
+        </aside>
+
+        <section className="preview-panel">
+          <div className="preview-header">{/* TODO: render selected file info */}</div>
+          <div className="preview-content">
+            <FilePreview file={selectedFile} />
+          </div>
+        </section>
+
+        <aside className="chat-panel">
           <ChatPanel
             context={{
               selectedFile,
               workspacePath: window.__WORKSPACE_PATH__ || ''
             }}
           />
-        </Sider>
-      </Layout>
+        </aside>
+      </div>
     </div>
   )
 }

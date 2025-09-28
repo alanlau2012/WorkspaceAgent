@@ -1,0 +1,87 @@
+:root {
+  /* 主色调 - Cursor 蓝色系（设计稿） */
+  --primary-50: #0f1419;
+  --primary-100: #1a1f29;
+  --primary-200: #252a35;
+  --primary-300: #2d3441;
+  --primary-400: #383e4d;
+  --primary-500: #4c5566;
+  --primary-600: #6b7280;
+  --primary-700: #9ca3af;
+  --primary-800: #d1d5db;
+  --primary-900: #f3f4f6;
+
+  /* 品牌色（设计稿） */
+  --brand-primary: #007acc;
+  --brand-secondary: #1e90ff;
+  --brand-accent: #00d4ff;
+
+  /* 背景层级（设计稿） */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-overlay: #30363d;
+  --bg-elevated: #373e47;
+
+  /* 边框（设计稿+补充） */
+  --border-primary: #30363d;
+  --border-secondary: #3d4450;
+  --border-focus: #1e90ff;
+
+  /* 文本（补充） */
+  --text-primary: #e6edf3;
+  --text-secondary: #9aa4b2;
+  --text-muted: #79808a;
+
+  /* 交互与状态（补充） */
+  --surface-hover: rgba(255, 255, 255, 0.04);
+  --surface-active: rgba(255, 255, 255, 0.06);
+
+  /* 尺寸与圆角 */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --spacing-1: 6px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-md: 16px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: var(--brand-secondary);
+  color: #fff;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-primary) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-primary);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--surface-hover);
+}
