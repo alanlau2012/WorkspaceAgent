@@ -1,6 +1,7 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { useChatStore } from '../../stores/chatStore'
 import { ChatMessage } from './ChatMessage'
+import { ChatModelManager } from './ChatModelManager'
 import './ChatPanel.css'
 
 export const ChatPanel = ({ context }) => {
@@ -14,11 +15,13 @@ export const ChatPanel = ({ context }) => {
     setCurrentInput,
     sendMessage,
     clearMessages,
-    getMessageStats
+    getMessageStats,
+    initModelsFromStorage
   } = useChatStore()
 
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
+  const [isModelManagerOpen, setIsModelManagerOpen] = useState(false)
 
   // 自动滚动到底部
   useEffect(() => {
@@ -33,6 +36,11 @@ export const ChatPanel = ({ context }) => {
       inputRef.current.focus()
     }
   }, [isStreaming])
+
+  // 初始化自定义模型
+  useEffect(() => {
+    initModelsFromStorage()
+  }, [])
 
   const handleSendMessage = async (e) => {
     e.preventDefault()
@@ -102,6 +110,14 @@ export const ChatPanel = ({ context }) => {
               </option>
             ))}
           </select>
+          <button
+            className="add-model-btn"
+            onClick={() => setIsModelManagerOpen(true)}
+            disabled={isStreaming}
+            title="管理自定义模型"
+          >
+            ➕
+          </button>
         </div>
 
         {/* 操作按钮 */}
@@ -201,6 +217,12 @@ export const ChatPanel = ({ context }) => {
           </button>
         </div>
       </form>
+
+      {/* 自定义模型管理器 */}
+      <ChatModelManager 
+        isOpen={isModelManagerOpen}
+        onClose={() => setIsModelManagerOpen(false)}
+      />
     </div>
   )
 }

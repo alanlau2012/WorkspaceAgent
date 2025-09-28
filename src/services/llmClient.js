@@ -89,7 +89,7 @@ class LLMClient {
     })
   }
 
-  async sendMessage({ model, messages, context }) {
+  async sendMessage({ model, messages, context, config }) {
     const provider = this.providers.get(model)
     
     if (!provider) {
@@ -97,7 +97,7 @@ class LLMClient {
     }
 
     try {
-      return await provider.sendMessage({ messages, context })
+      return await provider.sendMessage({ messages, context, config })
     } catch (error) {
       throw new Error(`${provider.name} 错误: ${error.message}`)
     }
@@ -112,6 +112,49 @@ class LLMClient {
 
   isModelAvailable(modelId) {
     return this.providers.has(modelId)
+  }
+
+  /**
+   * 注册自定义模型
+   * @param {string} id - 模型ID
+   * @param {Object} provider - 提供者对象，必须包含 name 和 sendMessage 方法
+   */
+  registerModel(id, provider) {
+    if (!id || typeof id !== 'string') {
+      throw new Error('模型ID必须是非空字符串')
+    }
+    
+    if (!provider || typeof provider.sendMessage !== 'function') {
+      throw new Error('提供者必须包含 sendMessage 方法')
+    }
+    
+    this.providers.set(id, provider)
+  }
+
+  /**
+   * 注销模型
+   * @param {string} id - 模型ID
+   */
+  unregisterModel(id) {
+    this.providers.delete(id)
+  }
+
+  /**
+   * 检查模型是否存在
+   * @param {string} id - 模型ID
+   * @returns {boolean}
+   */
+  hasModel(id) {
+    return this.providers.has(id)
+  }
+
+  /**
+   * 更新现有模型（如果不存在则创建）
+   * @param {string} id - 模型ID
+   * @param {Object} provider - 提供者对象
+   */
+  updateModel(id, provider) {
+    this.registerModel(id, provider)
   }
 }
 
