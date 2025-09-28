@@ -4,7 +4,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('electronAPI', {
   // 文件系统相关API
   selectDirectory: () => ipcRenderer.invoke('select-directory'),
-  readFile: (filePath) => ipcRenderer.invoke('read-file', filePath),
+  readFile: (filePath, options) => ipcRenderer.invoke('read-file', filePath, options),
   writeFile: (filePath, content) => ipcRenderer.invoke('write-file', filePath, content),
   watchDirectory: (directoryPath) => ipcRenderer.invoke('watch-directory', directoryPath),
   stopWatching: () => ipcRenderer.invoke('stop-watching'),
