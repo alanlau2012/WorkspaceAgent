@@ -16,7 +16,8 @@ const mockUseChatStore = {
   setCurrentInput: jest.fn(),
   sendMessage: jest.fn(),
   clearMessages: jest.fn(),
-  getMessageStats: jest.fn(() => ({ total: 0, user: 0, assistant: 0 }))
+  getMessageStats: jest.fn(() => ({ total: 0, user: 0, assistant: 0 })),
+  initModelsFromStorage: jest.fn()
 }
 
 jest.mock('../../../stores/chatStore', () => ({
@@ -266,5 +267,38 @@ describe('ChatPanel', () => {
     
     const sendButton = screen.getByTitle('发送消息')
     expect(sendButton).not.toBeDisabled()
+  })
+
+  test('应该显示添加模型按钮', () => {
+    render(<ChatPanel />)
+    
+    const addModelButton = screen.getByTitle('管理自定义模型')
+    expect(addModelButton).toBeInTheDocument()
+    expect(addModelButton).toHaveTextContent('➕')
+  })
+
+  test('应该在流式传输时禁用添加模型按钮', () => {
+    mockUseChatStore.isStreaming = true
+    
+    render(<ChatPanel />)
+    
+    const addModelButton = screen.getByTitle('管理自定义模型')
+    expect(addModelButton).toBeDisabled()
+  })
+
+  test('应该初始化自定义模型', () => {
+    render(<ChatPanel />)
+    
+    expect(mockUseChatStore.initModelsFromStorage).toHaveBeenCalled()
+  })
+
+  test('应该打开模型管理器', () => {
+    render(<ChatPanel />)
+    
+    const addModelButton = screen.getByTitle('管理自定义模型')
+    fireEvent.click(addModelButton)
+    
+    // 模型管理器应该被渲染（虽然我们不能直接测试isOpen状态）
+    expect(screen.getByText('自定义模型管理')).toBeInTheDocument()
   })
 })
