@@ -90,8 +90,15 @@ export const useFileManager = () => {
 
   const deleteFile = useCallback(async (filePath) => {
     try {
-      // 在实际的Electron环境中，这里会调用删除文件的API
-      console.log('删除文件:', filePath)
+      if (window.electronAPI && window.electronAPI.deletePath) {
+        const result = await window.electronAPI.deletePath(filePath)
+        if (!result.success) {
+          throw new Error(result.error || '删除失败')
+        }
+      } else {
+        // Mock implementation for testing
+        console.log('删除文件:', filePath)
+      }
       // Refresh the current directory
       await loadDirectory(currentPath)
     } catch (err) {
@@ -101,14 +108,49 @@ export const useFileManager = () => {
 
   const renameFile = useCallback(async (oldPath, newName) => {
     try {
-      // 在实际的Electron环境中，这里会调用重命名文件的API
-      console.log('重命名文件:', oldPath, '->', newName)
+      if (window.electronAPI && window.electronAPI.renamePath) {
+        await window.electronAPI.renamePath(oldPath, newName)
+      } else {
+        // Mock implementation for testing
+        console.log('重命名文件:', oldPath, '->', newName)
+      }
       // Refresh the current directory
       await loadDirectory(currentPath)
     } catch (err) {
       setError(err.message)
     }
   }, [currentPath, loadDirectory])
+
+  const loadChildren = useCallback(async (dirPath) => {
+    try {
+      if (window.electronAPI && window.electronAPI.readChildren) {
+        const children = await window.electronAPI.readChildren(dirPath)
+        if (children.success === false) {
+          throw new Error(children.error)
+        }
+
+        // 更新文件树中的对应目录的children
+        const updateChildren = (files, targetPath, newChildren) => {
+          return files.map(file => {
+            if (file.path === targetPath && file.isDirectory) {
+              return { ...file, children: newChildren }
+            }
+            if (file.children) {
+              return { ...file, children: updateChildren(file.children, targetPath, newChildren) }
+            }
+            return file
+          })
+        }
+
+        setFiles(prevFiles => updateChildren(prevFiles, dirPath, children))
+      } else {
+        // Mock implementation for testing
+        console.log('加载子目录:', dirPath)
+      }
+    } catch (err) {
+      setError(err.message)
+    }
+  }, [])
 
   const searchFiles = useCallback(async (query) => {
     try {
@@ -146,6 +188,7 @@ export const useFileManager = () => {
     error,
     searchResults,
     loadDirectory,
+    loadChildren,
     createFile,
     deleteFile,
     renameFile,
