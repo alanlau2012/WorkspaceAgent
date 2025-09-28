@@ -21,6 +21,12 @@
   </style>
 </head>
 <body>
-  <h1>你好，Electron！</h1>
+  <div class="file-tree-toolbar" style="position:fixed;top:0;left:0;right:0;padding:8px;background:#fff;border-bottom:1px solid #eee;display:flex;gap:8px;">
+    <button id="btn-open">📁 打开</button>
+    <button id="btn-refresh">🔄 刷新</button>
+    <button id="btn-new">➕ 新建</button>
+  </div>
+  <div id="file-tree" style="margin-top:48px; padding: 12px; width: 80vw; height: 80vh; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.06);"></div>
+  <script src="./renderer.js"></script>
 </body>
 </html>
