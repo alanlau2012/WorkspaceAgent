@@ -8,6 +8,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   writeFile: (filePath, content) => ipcRenderer.invoke('write-file', filePath, content),
   watchDirectory: (directoryPath) => ipcRenderer.invoke('watch-directory', directoryPath),
   stopWatching: () => ipcRenderer.invoke('stop-watching'),
+  deletePath: (targetPath) => ipcRenderer.invoke('delete-path', targetPath),
+  renamePath: (oldPath, newName) => ipcRenderer.invoke('rename-path', oldPath, newName),
+  readChildren: (dirPath) => ipcRenderer.invoke('read-children', dirPath),
   
   // 监听文件变化事件
   onFileChanged: (callback) => ipcRenderer.on('file-changed', callback),
