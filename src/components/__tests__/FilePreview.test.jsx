@@ -3,14 +3,12 @@ import { render, screen, waitFor, act } from '@testing-library/react'
 import { FilePreview } from '../FilePreview'
 
 // Mock Electron APIs
-const mockElectron = {
-  ipcRenderer: {
-    invoke: jest.fn()
-  }
+const mockElectronAPI = {
+  readFile: jest.fn()
 }
 
-Object.defineProperty(window, 'electron', {
-  value: mockElectron,
+Object.defineProperty(window, 'electronAPI', {
+  value: mockElectronAPI,
   writable: true
 })
 
@@ -21,7 +19,7 @@ describe('FilePreview', () => {
 
   test('应该显示文本文件内容', async () => {
     const mockContent = 'Hello, World!'
-    mockElectron.ipcRenderer.invoke.mockResolvedValue(mockContent)
+    mockElectronAPI.readFile.mockResolvedValue(mockContent)
     
     const file = { name: 'test.txt', type: 'file', path: '/test/test.txt' }
     render(<FilePreview file={file} />)
@@ -30,12 +28,12 @@ describe('FilePreview', () => {
       expect(screen.getByText('Hello, World!')).toBeInTheDocument()
     })
     
-    expect(mockElectron.ipcRenderer.invoke).toHaveBeenCalledWith('read-file', '/test/test.txt')
+    expect(mockElectronAPI.readFile).toHaveBeenCalledWith('/test/test.txt')
   })
 
   test('应该显示图片文件', async () => {
     const mockImageData = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
-    mockElectron.ipcRenderer.invoke.mockResolvedValue(mockImageData)
+    mockElectronAPI.readFile.mockResolvedValue(mockImageData)
     
     const file = { name: 'test.png', type: 'file', path: '/test/test.png' }
     render(<FilePreview file={file} />)
@@ -48,7 +46,7 @@ describe('FilePreview', () => {
 
   test('应该显示代码文件并高亮语法', async () => {
     const mockCode = 'function hello() {\n  console.log("Hello, World!");\n}'
-    mockElectron.ipcRenderer.invoke.mockResolvedValue(mockCode)
+    mockElectronAPI.readFile.mockResolvedValue(mockCode)
     
     const file = { name: 'test.js', type: 'file', path: '/test/test.js' }
     
@@ -78,7 +76,7 @@ describe('FilePreview', () => {
   })
 
   test('应该显示错误信息', async () => {
-    mockElectron.ipcRenderer.invoke.mockRejectedValue(new Error('File not found'))
+    mockElectronAPI.readFile.mockRejectedValue(new Error('File not found'))
     
     const file = { name: 'test.txt', type: 'file', path: '/test/test.txt' }
     render(<FilePreview file={file} />)

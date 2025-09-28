@@ -1,16 +1,25 @@
 const { app, BrowserWindow } = require('electron');
+const path = require('path');
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
     webPreferences: {
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      preload: path.resolve(__dirname, 'preload.js')
     }
   });
 
-  win.loadFile('src/index.html');
+  // 根据环境加载不同的入口
+  if (process.env.NODE_ENV === 'development') {
+    win.loadURL('http://localhost:3000');
+    // 开发环境打开DevTools
+    win.webContents.openDevTools();
+  } else {
+    win.loadFile(path.join(__dirname, '../dist/index.html'));
+  }
 }
 
 app.whenReady().then(() => {

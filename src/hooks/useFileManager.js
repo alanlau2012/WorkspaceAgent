@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 export const useFileManager = () => {
   const [files, setFiles] = useState([])
@@ -7,22 +7,66 @@ export const useFileManager = () => {
   const [error, setError] = useState(null)
   const [searchResults, setSearchResults] = useState([])
 
+  // 初始化时加载模拟数据
+  useEffect(() => {
+    const mockFiles = [
+      {
+        name: 'src',
+        type: 'directory',
+        path: '/src',
+        children: [
+          {
+            name: 'components',
+            type: 'directory',
+            path: '/src/components',
+            children: [
+              { name: 'FileTree.jsx', type: 'file', path: '/src/components/FileTree.jsx' },
+              { name: 'FilePreview.jsx', type: 'file', path: '/src/components/FilePreview.jsx' },
+              { name: 'FileTree.css', type: 'file', path: '/src/components/FileTree.css' },
+              { name: 'FilePreview.css', type: 'file', path: '/src/components/FilePreview.css' }
+            ]
+          },
+          {
+            name: 'hooks',
+            type: 'directory',
+            path: '/src/hooks',
+            children: [
+              { name: 'useFileManager.js', type: 'file', path: '/src/hooks/useFileManager.js' }
+            ]
+          },
+          { name: 'App.jsx', type: 'file', path: '/src/App.jsx' },
+          { name: 'App.css', type: 'file', path: '/src/App.css' },
+          { name: 'index.js', type: 'file', path: '/src/index.js' },
+          { name: 'main.js', type: 'file', path: '/src/main.js' }
+        ]
+      },
+      {
+        name: 'docs',
+        type: 'directory',
+        path: '/docs',
+        children: [
+          { name: 'README.md', type: 'file', path: '/docs/README.md' },
+          { name: 'Roadmap.md', type: 'file', path: '/docs/Roadmap.md' }
+        ]
+      },
+      { name: 'package.json', type: 'file', path: '/package.json' },
+      { name: 'vite.config.js', type: 'file', path: '/vite.config.js' },
+      { name: 'README.md', type: 'file', path: '/README.md' }
+    ]
+    setFiles(mockFiles)
+  }, [])
+
   const loadDirectory = useCallback(async (path) => {
     setIsLoading(true)
     setError(null)
     
     try {
-      if (window.electron && window.electron.ipcRenderer) {
-        const result = await window.electron.ipcRenderer.invoke('load-directory', path)
+      if (window.electronAPI && window.electronAPI.selectDirectory) {
+        const result = await window.electronAPI.selectDirectory()
         setFiles(result)
         setCurrentPath(path)
       } else {
-        // Mock data for testing
-        const mockFiles = [
-          { name: 'file1.txt', type: 'file', path: `${path}/file1.txt` },
-          { name: 'folder1', type: 'directory', path: `${path}/folder1` }
-        ]
-        setFiles(mockFiles)
+        // Mock data for testing - 使用现有的模拟数据
         setCurrentPath(path)
       }
     } catch (err) {
@@ -34,8 +78,8 @@ export const useFileManager = () => {
 
   const createFile = useCallback(async (filePath) => {
     try {
-      if (window.electron && window.electron.ipcRenderer) {
-        await window.electron.ipcRenderer.invoke('create-file', filePath)
+      if (window.electronAPI && window.electronAPI.writeFile) {
+        await window.electronAPI.writeFile(filePath, '')
       }
       // Refresh the current directory
       await loadDirectory(currentPath)
@@ -46,9 +90,8 @@ export const useFileManager = () => {
 
   const deleteFile = useCallback(async (filePath) => {
     try {
-      if (window.electron && window.electron.ipcRenderer) {
-        await window.electron.ipcRenderer.invoke('delete-file', filePath)
-      }
+      // 在实际的Electron环境中，这里会调用删除文件的API
+      console.log('删除文件:', filePath)
       // Refresh the current directory
       await loadDirectory(currentPath)
     } catch (err) {
@@ -58,12 +101,8 @@ export const useFileManager = () => {
 
   const renameFile = useCallback(async (oldPath, newName) => {
     try {
-      if (window.electron && window.electron.ipcRenderer) {
-        await window.electron.ipcRenderer.invoke('rename-file', {
-          oldPath,
-          newName
-        })
-      }
+      // 在实际的Electron环境中，这里会调用重命名文件的API
+      console.log('重命名文件:', oldPath, '->', newName)
       // Refresh the current directory
       await loadDirectory(currentPath)
     } catch (err) {
@@ -73,21 +112,32 @@ export const useFileManager = () => {
 
   const searchFiles = useCallback(async (query) => {
     try {
-      if (window.electron && window.electron.ipcRenderer) {
-        const results = await window.electron.ipcRenderer.invoke('search-files', query)
+      if (window.electronAPI && window.electronAPI.searchFiles) {
+        // 在实际的Electron环境中，这里会调用搜索API
+        const results = await window.electronAPI.searchFiles(query)
         setSearchResults(results)
       } else {
-        // Mock search results for testing
-        const mockResults = [
-          { name: 'test1.txt', type: 'file', path: '/test/test1.txt' },
-          { name: 'test2.js', type: 'file', path: '/test/test2.js' }
-        ]
+        // Mock search results for testing - 在现有文件中搜索
+        console.log('搜索文件:', query)
+        const searchInFiles = (files, query) => {
+          const results = []
+          files.forEach(file => {
+            if (file.name.toLowerCase().includes(query.toLowerCase())) {
+              results.push(file)
+            }
+            if (file.children) {
+              results.push(...searchInFiles(file.children, query))
+            }
+          })
+          return results
+        }
+        const mockResults = searchInFiles(files, query)
         setSearchResults(mockResults)
       }
     } catch (err) {
       setError(err.message)
     }
-  }, [])
+  }, [files])
 
   return {
     files,

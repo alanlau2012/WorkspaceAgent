@@ -47,12 +47,12 @@ export const FilePreview = ({ file }) => {
       setError(null)
 
       try {
-        if (window.electron && window.electron.ipcRenderer) {
-          const fileContent = await window.electron.ipcRenderer.invoke('read-file', file.path)
+        if (window.electronAPI && window.electronAPI.readFile) {
+          const fileContent = await window.electronAPI.readFile(file.path)
           setContent(fileContent)
         } else {
           // Mock content for testing
-          const mockContent = 'Hello, World!'
+          const mockContent = `// 文件内容预览\n// 文件路径: ${file.path}\n// 这是一个模拟的文件内容，用于测试目的。\n\nconsole.log('Hello, World!');\n\n// 在实际的Electron环境中，这里会显示真实的文件内容。`
           setContent(mockContent)
         }
       } catch (err) {
