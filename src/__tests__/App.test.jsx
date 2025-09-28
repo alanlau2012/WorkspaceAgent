@@ -20,7 +20,8 @@ describe('App', () => {
       setCurrentInput: jest.fn(),
       sendMessage: jest.fn(),
       clearMessages: jest.fn(),
-      getMessageStats: jest.fn(() => ({ total: 0 }))
+      getMessageStats: jest.fn(() => ({ total: 0 })),
+      initModelsFromStorage: jest.fn()
     })
   })
 

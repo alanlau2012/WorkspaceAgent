@@ -171,7 +171,7 @@ describe('IPC Handlers - File System Operations', () => {
     it('应该重命名文件/文件夹并返回true', async () => {
       const oldPath = '/test/oldname'
       const newName = 'newname'
-      const expectedNewPath = '/test/newname'
+      const expectedNewPath = path.join(path.dirname(oldPath), newName)
       fs.rename.mockResolvedValue()
 
       const result = await handlers['rename-path'](null, oldPath, newName)
@@ -252,12 +252,16 @@ describe('IPC Handlers - File System Operations', () => {
     it('应该读取文件内容', async () => {
       const filePath = '/test/file.txt'
       const content = 'File content'
+      const mockStat = { size: 100 }
+      
+      fs.stat.mockResolvedValue(mockStat)
       fs.readFile.mockResolvedValue(content)
 
       const result = await handlers['read-file'](null, filePath)
 
+      expect(fs.stat).toHaveBeenCalledWith(filePath)
       expect(fs.readFile).toHaveBeenCalledWith(filePath, 'utf-8')
-      expect(result).toBe(content)
+      expect(result).toEqual({ type: 'text', content, size: 100 })
     })
   })
 })
