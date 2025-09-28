@@ -1,17 +1,10 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
+const { getWindowOptions } = require('./main/windowOptions');
 const { registerIpcHandlers } = require('./main/ipcHandlers');
 
 function createWindow() {
-  const win = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    webPreferences: {
-      contextIsolation: true,
-      nodeIntegration: false,
-      preload: path.resolve(__dirname, 'preload.js')
-    }
-  });
+  const win = new BrowserWindow(getWindowOptions());
 
   // 根据环境加载不同的入口
   if (process.env.NODE_ENV === 'development') {

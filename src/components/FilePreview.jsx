@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-// import './FilePreview.css'
+import './FilePreview.css'
 
 export const FilePreview = ({ file }) => {
   const [content, setContent] = useState('')
