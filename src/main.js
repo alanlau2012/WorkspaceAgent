@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { registerIpcHandlers } = require('./main/ipcHandlers');
+const { registerFileSystemIpc } = require('./main/ipc/fileSystem');
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -25,6 +26,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
   registerIpcHandlers();
+  registerFileSystemIpc(require('electron').ipcMain);
   createWindow();
 
   app.on('activate', () => {

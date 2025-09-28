@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { useFileManager } from '../hooks/useFileManager'
-// import './FileTree.css'
+import { useFileManagerCtx } from '../contexts/FileManagerContext'
+import './FileTree.css'
 
 export const FileTree = ({ onFileSelect, showSearch = false }) => {
   const {
@@ -8,11 +8,14 @@ export const FileTree = ({ onFileSelect, showSearch = false }) => {
     isLoading,
     error,
     searchFiles,
-    searchResults
-  } = useFileManager()
+    searchResults,
+    renamePath,
+    deletePath
+  } = useFileManagerCtx()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedFolders, setExpandedFolders] = useState(new Set())
+  const [menu, setMenu] = useState({ visible: false, x: 0, y: 0, target: null })
 
   const handleSearchChange = (e) => {
     const query = e.target.value
@@ -40,6 +43,38 @@ export const FileTree = ({ onFileSelect, showSearch = false }) => {
     }
   }
 
+  const handleContextMenu = (e, file) => {
+    e.preventDefault()
+    setMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      target: file
+    })
+  }
+
+  const handleMenuAction = (action) => {
+    if (!menu.target) return
+
+    if (action === 'rename') {
+      const newName = window.prompt('新名称：', menu.target.name)
+      if (newName && newName !== menu.target.name) {
+        renamePath(menu.target.path, newName)
+      }
+    } else if (action === 'delete') {
+      const confirmed = window.confirm(`确认删除 ${menu.target.name} ?`)
+      if (confirmed) {
+        deletePath(menu.target.path)
+      }
+    }
+
+    setMenu({ visible: false, x: 0, y: 0, target: null })
+  }
+
+  const hideMenu = () => {
+    setMenu({ visible: false, x: 0, y: 0, target: null })
+  }
+
   const renderFileItem = (file, level = 0) => {
     const isExpanded = expandedFolders.has(file.path)
     const hasChildren = file.children && file.children.length > 0
@@ -49,6 +84,7 @@ export const FileTree = ({ onFileSelect, showSearch = false }) => {
         <div
           className={`file-row level-${level} ${file.type}`}
           onClick={() => handleFileClick(file)}
+          onContextMenu={(e) => handleContextMenu(e, file)}
           style={{ paddingLeft: `${level * 20 + 10}px` }}
         >
           {file.type === 'directory' && (
@@ -81,7 +117,7 @@ export const FileTree = ({ onFileSelect, showSearch = false }) => {
   }
 
   return (
-    <div className="file-tree">
+    <div className="file-tree" onClick={hideMenu}>
       {showSearch && (
         <div className="file-tree-search">
           <input
@@ -96,6 +132,26 @@ export const FileTree = ({ onFileSelect, showSearch = false }) => {
       <div className="file-tree-content">
         {displayFiles.map(file => renderFileItem(file))}
       </div>
+      {menu.visible && (
+        <div 
+          className="context-menu" 
+          style={{ left: menu.x, top: menu.y }}
+          onMouseLeave={hideMenu}
+        >
+          <div 
+            className="menu-item" 
+            onClick={() => handleMenuAction('rename')}
+          >
+            重命名
+          </div>
+          <div 
+            className="menu-item danger" 
+            onClick={() => handleMenuAction('delete')}
+          >
+            删除
+          </div>
+        </div>
+      )}
     </div>
   )
 }
