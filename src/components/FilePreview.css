@@ -41,10 +41,29 @@
   height: 100%;
   color: var(--text-secondary);
   font-size: var(--text-sm);
+  text-align: center;
+  padding: 20px;
 }
 
 .file-preview-error {
   color: #ff4d4f;
+}
+
+.file-preview-loading::after {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  border: 2px solid #e8e8e8;
+  border-top: 2px solid #666;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .file-preview-image {
@@ -66,23 +85,69 @@
   height: 100%;
 }
 
-.file-preview-code pre {
+/* 重置语法高亮器的默认样式以适应我们的布局 */
+.file-preview-code pre[class*="language-"] {
+  margin: 0 !important;
+  height: 100%;
+  border-radius: 4px !important;
+  border: 1px solid #e8e8e8;
+}
+
+/* 确保语法高亮器的代码块适当填充 */
+.file-preview-code code[class*="language-"] {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+
+/* 回退样式，用于非语法高亮的纯文本 */
+.file-preview-code pre:not([class*="language-"]) {
   margin: 0;
-  padding: 0;
+  padding: 16px;
   height: 100%;
   overflow: auto;
   background: var(--bg-secondary);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-primary);
-}
-
-.file-preview-code code {
-  display: block;
-  padding: var(--spacing-4);
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 13px;
   line-height: 1.5;
   color: var(--text-primary);
   white-space: pre-wrap;
   word-wrap: break-word;
+}
+
+.file-preview-code code {
+  display: block;
+  padding: var(--spacing-4);
+}
+
+/* Dark theme support for header and layout */
+.file-preview.dark {
+  background: #1f1f1f;
+}
+
+.file-preview.dark .file-preview-header {
+  background: #2a2a2a;
+  border-bottom-color: #404040;
+}
+
+.file-preview.dark .file-preview-header h3 {
+  color: #fff;
+}
+
+.file-preview.dark .file-path {
+  color: #999;
+}
+
+/* 语法高亮器使用自己的暗色主题，只需要调整边框 */
+.file-preview.dark .file-preview-code pre[class*="language-"] {
+  border-color: #404040;
+}
+
+.file-preview.dark .file-preview-code pre:not([class*="language-"]) {
+  background: #2a2a2a;
+  border-color: #404040;
+  color: #fff;
+}
 }

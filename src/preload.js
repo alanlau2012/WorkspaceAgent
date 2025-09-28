@@ -8,7 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   createFolder: (dirPath) => ipcRenderer.invoke('create-folder', dirPath),
   renamePath: (oldPath, newName) => ipcRenderer.invoke('rename-path', oldPath, newName),
   deletePath: (targetPath) => ipcRenderer.invoke('delete-path', targetPath),
-  readFile: (filePath) => ipcRenderer.invoke('read-file', filePath),
+  readFile: (filePath, options) => ipcRenderer.invoke('read-file', filePath, options),
   writeFile: (filePath, content) => ipcRenderer.invoke('write-file', filePath, content),
   watchDirectory: (directoryPath) => ipcRenderer.invoke('watch-directory', directoryPath),
   stopWatching: () => ipcRenderer.invoke('stop-watching'),

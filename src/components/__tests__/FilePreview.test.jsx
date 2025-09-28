@@ -55,7 +55,10 @@ describe('FilePreview', () => {
     })
     
     await waitFor(() => {
-      expect(screen.getByText(/function hello\(\) \{/)).toBeInTheDocument()
+      // 在语法高亮的情况下，文本被分解为多个token，我们检查是否包含了代码内容
+      expect(screen.getByText('function')).toBeInTheDocument()
+      expect(screen.getByText('hello')).toBeInTheDocument()
+      expect(screen.getByText('console')).toBeInTheDocument()
     })
   })
 
