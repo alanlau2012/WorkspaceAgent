@@ -86,6 +86,15 @@ describe('FilePreview', () => {
     })
   })
 
+  test('大文件应提示无法预览', async () => {
+    mockElectronAPI.readFile.mockRejectedValue(new Error('FILE_TOO_LARGE'))
+    const file = { name: 'big.txt', type: 'file', path: '/test/big.txt' }
+    render(<FilePreview file={file} />)
+    await waitFor(() => {
+      expect(screen.getByText('文件过大，无法预览 (>1MB)')).toBeInTheDocument()
+    })
+  })
+
   test('应该在没有选择文件时显示提示', () => {
     render(<FilePreview file={null} />)
     

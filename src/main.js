@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { registerIpcHandlers } = require('./main/ipcHandlers');
+const { resolveIndexUrl } = require('./main/utils');
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -13,29 +14,32 @@ function createWindow() {
     }
   });
 
-  // 根据环境加载不同的入口
+  const url = resolveIndexUrl();
+  win.loadURL(url);
+
   if (process.env.NODE_ENV === 'development') {
-    win.loadURL('http://localhost:3001');
-    // 开发环境打开DevTools
     win.webContents.openDevTools();
-  } else {
-    win.loadFile(path.join(__dirname, '../dist/index.html'));
   }
 }
 
-app.whenReady().then(() => {
-  registerIpcHandlers();
-  createWindow();
+// 在 Jest 测试环境中跳过自动启动，便于单测仅验证 createWindow 行为
+if (!process.env.JEST_WORKER_ID) {
+  app.whenReady().then(() => {
+    registerIpcHandlers();
+    createWindow();
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+      }
+    });
   });
-});
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
+
+module.exports = { createWindow };

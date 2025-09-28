@@ -1,9 +1,15 @@
-const { ipcMain } = require('electron')
-const fs = require('fs/promises')
+const { app, BrowserWindow, dialog, ipcMain } = require('electron')
+const chokidar = require('chokidar')
+const { registerFileSystemIpc } = require('./ipc/fileSystem')
+const { buildFSTree } = require('../shared/fsTree')
 
 function registerIpcHandlers() {
-  ipcMain.handle('read-file', async (_event, filePath) => {
-    return fs.readFile(filePath, 'utf-8')
+  registerFileSystemIpc({
+    ipcMain,
+    dialog,
+    chokidar,
+    buildFSTree,
+    getBrowserWindows: () => BrowserWindow.getAllWindows()
   })
 }
 

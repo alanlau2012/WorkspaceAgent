@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Layout } from 'antd'
 import { FileTree } from './components/FileTree'
 import { FilePreview } from './components/FilePreview'
+import { ChatPanel } from './components/Chat/ChatPanel'
 import './App.css'
 
 const { Sider, Content } = Layout
@@ -25,6 +26,9 @@ function App() {
         <Content style={{ padding: '16px' }}>
           <FilePreview file={selectedFile} />
         </Content>
+        <Sider width={360} style={{ background: '#fff', borderLeft: '1px solid #eee' }}>
+          <ChatPanel context={{ selectedFile }} />
+        </Sider>
       </Layout>
     </div>
   )

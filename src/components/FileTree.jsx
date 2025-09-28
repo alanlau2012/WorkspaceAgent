@@ -7,8 +7,13 @@ export const FileTree = ({ onFileSelect, showSearch = false }) => {
     files,
     isLoading,
     error,
+    currentPath,
     searchFiles,
-    searchResults
+    searchResults,
+    loadDirectory,
+    createFile,
+    renameFile,
+    deleteFile
   } = useFileManager()
 
   const [searchQuery, setSearchQuery] = useState('')
@@ -82,6 +87,24 @@ export const FileTree = ({ onFileSelect, showSearch = false }) => {
 
   return (
     <div className="file-tree">
+      <div className="file-tree-toolbar">
+        <button data-testid="btn-refresh" onClick={() => loadDirectory(currentPath)}>刷新</button>
+        <button data-testid="btn-select-root" onClick={() => loadDirectory('')}>选择根目录</button>
+        <button data-testid="btn-new-file" onClick={() => {
+          const p = window.prompt('输入新文件路径')
+          if (p) createFile(p)
+        }}>新建</button>
+        <button data-testid="btn-rename-file" onClick={() => {
+          const oldPath = window.prompt('输入要重命名的文件完整路径')
+          if (!oldPath) return
+          const newName = window.prompt('输入新文件名')
+          if (newName) renameFile(oldPath, newName)
+        }}>重命名</button>
+        <button data-testid="btn-delete-file" onClick={() => {
+          const p = window.prompt('输入要删除的文件完整路径')
+          if (p) deleteFile(p)
+        }}>删除</button>
+      </div>
       {showSearch && (
         <div className="file-tree-search">
           <input
