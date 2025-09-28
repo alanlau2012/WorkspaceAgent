@@ -4,6 +4,10 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('electronAPI', {
   // 文件系统相关API
   selectDirectory: () => ipcRenderer.invoke('select-directory'),
+  readDirectory: (dirPath) => ipcRenderer.invoke('read-directory', dirPath),
+  createFolder: (dirPath) => ipcRenderer.invoke('create-folder', dirPath),
+  renamePath: (oldPath, newName) => ipcRenderer.invoke('rename-path', oldPath, newName),
+  deletePath: (targetPath) => ipcRenderer.invoke('delete-path', targetPath),
   readFile: (filePath) => ipcRenderer.invoke('read-file', filePath),
   writeFile: (filePath, content) => ipcRenderer.invoke('write-file', filePath, content),
   watchDirectory: (directoryPath) => ipcRenderer.invoke('watch-directory', directoryPath),
@@ -13,5 +17,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onFileChanged: (callback) => ipcRenderer.on('file-changed', callback),
   removeFileChangedListener: (callback) => ipcRenderer.removeListener('file-changed', callback)
 });
-
 

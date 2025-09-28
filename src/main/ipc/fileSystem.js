@@ -17,6 +17,8 @@ function registerFileSystemIpc(ipcMain) {
     watcher.on('add', p => send('add', p));
     watcher.on('change', p => send('change', p));
     watcher.on('unlink', p => send('unlink', p));
+    watcher.on('addDir', p => send('addDir', p));
+    watcher.on('unlinkDir', p => send('unlinkDir', p));
     return true;
   });
 
@@ -30,4 +32,3 @@ function registerFileSystemIpc(ipcMain) {
 }
 
 module.exports = { registerFileSystemIpc };
-

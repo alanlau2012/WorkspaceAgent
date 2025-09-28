@@ -125,3 +125,58 @@
 .file-tree.dark .search-input:focus {
   border-color: #1890ff;
 }
+
+/* Context Menu Styles */
+.context-menu {
+  position: fixed;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 120px;
+  padding: 4px 0;
+}
+
+.menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s;
+}
+
+.menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+.menu-item.danger {
+  color: #ff4d4f;
+}
+
+.menu-item.danger:hover {
+  background-color: #fff2f0;
+  color: #d4380d;
+}
+
+/* Dark theme context menu */
+.file-tree.dark .context-menu {
+  background: #2a2a2a;
+  border-color: #404040;
+}
+
+.file-tree.dark .menu-item {
+  color: #fff;
+}
+
+.file-tree.dark .menu-item:hover {
+  background-color: #404040;
+}
+
+.file-tree.dark .menu-item.danger {
+  color: #ff7875;
+}
+
+.file-tree.dark .menu-item.danger:hover {
+  background-color: #3a1f1f;
+}
