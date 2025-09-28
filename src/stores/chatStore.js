@@ -7,7 +7,10 @@ export const useChatStore = create((set, get) => ({
   isStreaming: false,
   currentInput: '',
   
-  // 可用的模型列表
+  // 自定义模型列表
+  customModels: [],
+  
+  // 可用的模型列表（现在由 syncAvailableModels 动态更新）
   availableModels: [
     { id: 'mock-echo', name: 'Mock Echo', description: '回声测试模型' },
     { id: 'mock-assistant', name: 'Mock Assistant', description: '模拟助手模型' },
@@ -97,6 +100,170 @@ export const useChatStore = create((set, get) => ({
       total: messages.length,
       user: messages.filter(msg => msg.type === 'user').length,
       assistant: messages.filter(msg => msg.type === 'assistant').length
+    }
+  },
+
+  // 自定义模型管理
+  
+  /**
+   * 从本地存储初始化自定义模型
+   */
+  initModelsFromStorage: async () => {
+    try {
+      const stored = localStorage.getItem('customModels')
+      if (stored) {
+        const customModels = JSON.parse(stored)
+        set({ customModels })
+        
+        // 为每个自定义模型注册到 llmClient
+        const { llmClient } = await import('../services/llmClient')
+        const { createMaasMockProvider } = await import('../services/maasMockProvider')
+        
+        for (const modelConfig of customModels) {
+          if (!modelConfig.disabled) {
+            const provider = createMaasMockProvider(modelConfig)
+            llmClient.registerModel(modelConfig.id, provider)
+          }
+        }
+        
+        // 同步可用模型列表
+        get().syncAvailableModels()
+      }
+    } catch (error) {
+      console.error('初始化自定义模型失败:', error)
+      set({ customModels: [] })
+    }
+  },
+
+  /**
+   * 添加自定义模型
+   * @param {Object} modelConfig - 模型配置
+   */
+  addCustomModel: async (modelConfig) => {
+    const { customModels } = get()
+    
+    // 检查是否存在相同ID的模型，如果存在则更新
+    const existingIndex = customModels.findIndex(m => m.id === modelConfig.id)
+    let newCustomModels
+    
+    if (existingIndex >= 0) {
+      // 更新现有模型
+      newCustomModels = [...customModels]
+      newCustomModels[existingIndex] = { ...newCustomModels[existingIndex], ...modelConfig }
+    } else {
+      // 添加新模型
+      newCustomModels = [...customModels, modelConfig]
+    }
+    
+    // 更新状态
+    set({ customModels: newCustomModels })
+    
+    // 保存到本地存储
+    localStorage.setItem('customModels', JSON.stringify(newCustomModels))
+    
+    // 注册到 llmClient
+    if (!modelConfig.disabled) {
+      try {
+        const { llmClient } = await import('../services/llmClient')
+        const { createMaasMockProvider } = await import('../services/maasMockProvider')
+        
+        const provider = createMaasMockProvider(modelConfig)
+        llmClient.registerModel(modelConfig.id, provider)
+      } catch (error) {
+        console.error('注册自定义模型失败:', error)
+      }
+    }
+    
+    // 同步可用模型列表
+    get().syncAvailableModels()
+  },
+
+  /**
+   * 移除自定义模型
+   * @param {string} modelId - 模型ID
+   */
+  removeCustomModel: async (modelId) => {
+    const { customModels, selectedModel } = get()
+    
+    // 从列表中移除
+    const newCustomModels = customModels.filter(m => m.id !== modelId)
+    set({ customModels: newCustomModels })
+    
+    // 保存到本地存储
+    localStorage.setItem('customModels', JSON.stringify(newCustomModels))
+    
+    // 从 llmClient 注销
+    try {
+      const { llmClient } = await import('../services/llmClient')
+      llmClient.unregisterModel(modelId)
+    } catch (error) {
+      console.error('注销自定义模型失败:', error)
+    }
+    
+    // 如果删除的是当前选中的模型，切换到默认模型
+    if (selectedModel === modelId) {
+      set({ selectedModel: 'mock-echo' })
+    }
+    
+    // 同步可用模型列表
+    get().syncAvailableModels()
+  },
+
+  /**
+   * 更新自定义模型
+   * @param {string} modelId - 模型ID
+   * @param {Object} updates - 更新的配置
+   */
+  updateCustomModel: async (modelId, updates) => {
+    const { customModels } = get()
+    const modelIndex = customModels.findIndex(m => m.id === modelId)
+    
+    if (modelIndex >= 0) {
+      const newCustomModels = [...customModels]
+      newCustomModels[modelIndex] = { ...newCustomModels[modelIndex], ...updates }
+      
+      set({ customModels: newCustomModels })
+      
+      // 保存到本地存储
+      localStorage.setItem('customModels', JSON.stringify(newCustomModels))
+      
+      // 重新注册到 llmClient
+      if (!newCustomModels[modelIndex].disabled) {
+        try {
+          const { llmClient } = await import('../services/llmClient')
+          const { createMaasMockProvider } = await import('../services/maasMockProvider')
+          
+          const provider = createMaasMockProvider(newCustomModels[modelIndex])
+          llmClient.updateModel(modelId, provider)
+        } catch (error) {
+          console.error('更新自定义模型失败:', error)
+        }
+      }
+      
+      // 同步可用模型列表
+      get().syncAvailableModels()
+    }
+  },
+
+  /**
+   * 从 llmClient 同步可用模型列表
+   */
+  syncAvailableModels: async () => {
+    try {
+      const { llmClient } = await import('../services/llmClient')
+      const models = llmClient.getAvailableModels()
+      
+      // 转换为组件需要的格式，添加描述等信息
+      const availableModels = models.map(model => ({
+        id: model.id,
+        name: model.name,
+        description: get().customModels.find(cm => cm.id === model.id)?.description || 
+                    (model.id.startsWith('mock-') ? '测试模型' : '自定义模型')
+      }))
+      
+      set({ availableModels })
+    } catch (error) {
+      console.error('同步可用模型失败:', error)
     }
   }
 }))
