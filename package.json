@@ -5,7 +5,7 @@
   "main": "src/main.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production electron .",
-    "dev": "cross-env NODE_ENV=development concurrently \"npm run dev:renderer\" \"wait-on http://localhost:3000 && electron .\"",
+    "dev": "cross-env NODE_ENV=development concurrently \"npm run dev:renderer\" \"wait-on http://localhost:3001 && electron .\"",
     "dev:renderer": "vite",
     "build": "vite build",
     "test": "jest",
