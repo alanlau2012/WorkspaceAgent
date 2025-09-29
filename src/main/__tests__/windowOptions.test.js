@@ -15,5 +15,17 @@ describe('windowOptions', () => {
       path.join(__dirname, '..', '..', 'preload.js')
     );
   });
+
+  test('窗口尺寸应足够大以完整显示三栏布局', () => {
+    const opts = getWindowOptions();
+    expect(opts.width).toBeGreaterThanOrEqual(1200);
+    expect(opts.height).toBeGreaterThanOrEqual(800);
+  });
+
+  test('应设置最小窗口尺寸限制', () => {
+    const opts = getWindowOptions();
+    expect(opts.minWidth).toBeGreaterThanOrEqual(1024);
+    expect(opts.minHeight).toBeGreaterThanOrEqual(700);
+  });
 });
 

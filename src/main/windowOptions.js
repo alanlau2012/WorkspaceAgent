@@ -2,8 +2,10 @@ const path = require('path');
 
 function getWindowOptions() {
   return {
-    width: 800,
-    height: 600,
+    width: 1280,
+    height: 860,
+    minWidth: 1024,
+    minHeight: 700,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,

@@ -202,7 +202,7 @@ export const ChatPanel = ({ context }) => {
             value={currentInput}
             onChange={(e) => setCurrentInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={isStreaming ? "AI 正在思考中..." : "输入消息... (Enter 发送，Shift+Enter 换行)"}
+            placeholder={isStreaming ? "AI 正在思考中..." : "输入消息..."}
             disabled={isStreaming}
             rows="1"
             className="chat-input"
@@ -213,7 +213,7 @@ export const ChatPanel = ({ context }) => {
             className="send-btn"
             title="发送消息"
           >
-            {isStreaming ? '⏳' : '📤'}
+            {isStreaming ? '⏳' : '发送'}
           </button>
         </div>
       </form>

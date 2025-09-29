@@ -42,10 +42,6 @@ function AppContent() {
 
   return (
     <div className="app-container">
-      <div className="titlebar">
-        <div className="titlebar-title">WorkspaceAgent - AI 文件管理助手</div>
-      </div>
-
       <div className="main-content">
         <aside className="file-tree-panel">
           <div className="file-tree-header">
